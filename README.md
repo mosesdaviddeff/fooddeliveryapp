@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # food_app
 
 A new Flutter project.
@@ -15,3 +16,7 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# fooddeliveryapp
+A food delivery app built with Flutter, where users browse restaurants, add meals to a cart and place orders with live status updates. It uses clean architecture and Provider for state management, with Firebase handling authentication and data.
+>>>>>>> f0a0f1e626e55945348d88bd8d32ed4ed5915aa2
