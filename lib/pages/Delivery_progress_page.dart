@@ -1,20 +1,91 @@
+// ignore_for_file: file_names
+
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:food_app/components/my_reciept.dart';
+import 'package:food_app/model/restaurant.dart';
+import 'package:food_app/services/database/firestore.dart';
+import 'package:provider/provider.dart';
 
-class DeliveryProgressPage extends StatelessWidget {
+class DeliveryProgressPage extends StatefulWidget {
   const DeliveryProgressPage({super.key});
+
+  @override
+  State<DeliveryProgressPage> createState() => _DeliveryProgressPageState();
+}
+
+class _DeliveryProgressPageState extends State<DeliveryProgressPage> {
+  final FirestoreService db = FirestoreService();
+  late final String _receipt;
+  bool _isSavingOrder = true;
+  bool _orderSaved = false;
+  String? _saveError;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _receipt = context.read<Restaurant>().displayCartReciept();
+    _saveOrder();
+  }
+
+  Future<void> _saveOrder() async {
+    setState(() {
+      _isSavingOrder = true;
+      _orderSaved = false;
+      _saveError = null;
+    });
+
+    try {
+      await db.saveOrderToDatabase(_receipt);
+      if (!mounted) return;
+      setState(() {
+        _isSavingOrder = false;
+        _orderSaved = true;
+      });
+    } on FirebaseException catch (error, stackTrace) {
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stackTrace,
+          library: 'order submission',
+        ),
+      );
+      if (!mounted) return;
+      setState(() {
+        _isSavingOrder = false;
+        _saveError =
+            'Could not save your order (${error.code}): '
+            '${error.message ?? 'Check your connection and Firestore rules.'}';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Delivery in progress."),
-        backgroundColor: Colors.transparent,
-      ),
+      appBar: AppBar(backgroundColor: Colors.transparent),
       bottomNavigationBar: _buildBottomNavBar(context),
       body: Column(
         children: [
-          MyReciept(),
+          const MyReciept(),
+          if (_isSavingOrder) ...[
+            const CircularProgressIndicator(),
+            const SizedBox(height: 8),
+            const Text('Saving your order...'),
+          ] else if (_saveError != null) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                _saveError!,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
+            TextButton(onPressed: _saveOrder, child: const Text('Retry')),
+          ] else if (_orderSaved) ...[
+            const Text('Order saved successfully.'),
+          ],
         ],
       ),
     );
@@ -95,8 +166,6 @@ class DeliveryProgressPage extends StatelessWidget {
           ),
               ],
             )
-
-          
         ],
       ),
     );

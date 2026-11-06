@@ -1,0 +1,22 @@
+Once your push works, these are the ones you’ll use daily:
+
+git status                 # see what changed
+git add .                  # stage all changes
+git commit -m "message"    # save a snapshot
+git push                   # send to GitHub
+git pull                   # get latest from GitHub
+git log --oneline          # view commit history
+
+Branching, which is good to show in interviews:
+
+git checkout -b feature/cart   # create and switch to a new branch
+git checkout main              # go back to main
+git merge feature/cart         # merge the branch into main
+git push -u origin feature/cart
+
+Undoing mistakes:
+
+git restore filename       # discard unsaved changes in a file
+git reset HEAD~1           # undo last commit, keep your code
+
+Your daily loop is git status, git add ., git commit, git push.
