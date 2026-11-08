@@ -2,6 +2,9 @@
 
 # Food Delivery App
 
+## Download APK
+https://github.com/mosesdaviddeff/fooddeliveryapp/releases/download/v1.0.0/Foodly-v1.0.0.apk
+
 A Flutter food-delivery app prototype. Users can browse a sample food menu, customize items, manage a cart, enter a delivery address, and submit orders to Firebase.
 
 ## Features
