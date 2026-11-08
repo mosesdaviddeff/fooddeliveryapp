@@ -1,4 +1,4 @@
-# food_app
+# Foodly
 
 # Food Delivery App
 
