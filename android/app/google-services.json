@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1081408929024-gpcrm9rsb7jikc3cn1ld9d4jckn996f5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.food_app",
+            "certificate_hash": "262ff93dd753c054024c5f1dfc99b6fe9e50fddd"
+          }
+        },
+        {
           "client_id": "1081408929024-jdaani2tcgcmk3ffg4ms9v5mtliui66e.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,6 +37,13 @@
             {
               "client_id": "1081408929024-jdaani2tcgcmk3ffg4ms9v5mtliui66e.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1081408929024-ngefuikv5olnqgu3t1gl7rusrbu32qd5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.foodApp"
+              }
             }
           ]
         }

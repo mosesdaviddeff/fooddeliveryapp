@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:food_app/components/my_button.dart';
+import 'package:food_app/components/my_google_button.dart';
 import 'package:food_app/components/my_textfield.dart';
 import 'package:food_app/services/auth/auth_service.dart';
 
@@ -20,43 +21,82 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  void _showError(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Sign up error"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
 
   //register method
   void register() async {
-    // get auth service
     final authService = AuthService();
 
-    //check if passwords match
-    if (passwordController.text == confirmPasswordController.text) {
-      // try creating user
-      try {
-        await authService.signUpWithEmailPassword(
-          emailController.text,
-          passwordController.text,
-        );
-      }
-      //display any error(s)
-      catch (e) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(title: Text(e.toString())),
-        );
-      }
+    if (emailController.text.trim().isEmpty || passwordController.text.isEmpty) {
+      _showError("Please fill in all fields.");
+      return;
     }
-    // if passwords dont match
-    else {
-      showDialog(
-        context: context,
-        builder: (context) =>
-            const AlertDialog(title: Text("Passwords don't match")),
+
+    //check if passwords match
+    if (passwordController.text != confirmPasswordController.text) {
+      _showError("Passwords don't match");
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await authService.signUpWithEmailPassword(
+        emailController.text.trim(),
+        passwordController.text,
       );
+    } catch (e) {
+      if (!mounted) return;
+      _showError(e.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  // Google sign in / up method
+  Future<void> googleSignUp() async {
+    setState(() => _isLoading = true);
+
+    try {
+      await AuthService().signInWithGoogle();
+    } catch (e) {
+      if (!mounted) return;
+      _showError(e.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: colors.surface,
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
@@ -69,14 +109,14 @@ class _RegisterPageState extends State<RegisterPage> {
                     Icon(
                       Icons.fastfood,
                       size: 100,
-                      color: Theme.of(context).colorScheme.inversePrimary,
+                      color: colors.inversePrimary,
                     ),
                     const SizedBox(height: 20),
                     Text(
                       "Let's create an account for you!",
                       style: TextStyle(
                         fontSize: 18,
-                        color: Theme.of(context).colorScheme.inversePrimary,
+                        color: colors.inversePrimary,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -98,15 +138,55 @@ class _RegisterPageState extends State<RegisterPage> {
                       obscureText: true,
                     ),
                     const SizedBox(height: 20),
-                    MyButton(text: "Sign Up", onTap: register),
+                    _isLoading
+                        ? const CircularProgressIndicator()
+                        : MyButton(text: "Sign Up", onTap: register),
                     const SizedBox(height: 20),
+
+                    // Divider "Or continue with"
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Divider(
+                              color: colors.secondary,
+                              thickness: 1,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Text(
+                              "Or continue with",
+                              style: TextStyle(color: colors.inversePrimary),
+                            ),
+                          ),
+                          Expanded(
+                            child: Divider(
+                              color: colors.secondary,
+                              thickness: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Google Sign-Up Button
+                    MyGoogleButton(
+                      onTap: _isLoading ? null : googleSignUp,
+                      text: "Sign up with Google",
+                    ),
+
+                    const SizedBox(height: 25),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           "Already have an account?",
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.inversePrimary,
+                            color: colors.inversePrimary,
                           ),
                         ),
                         const SizedBox(width: 4),
@@ -115,9 +195,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           child: Text(
                             "Sign in now",
                             style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.inversePrimary,
+                              color: colors.inversePrimary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

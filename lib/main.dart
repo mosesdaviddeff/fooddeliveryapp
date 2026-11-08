@@ -5,15 +5,23 @@ import 'package:food_app/firebase_options.dart';
 import 'package:food_app/model/restaurant.dart';
 import 'package:food_app/themes/theme_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Load saved dark mode preference
+  final prefs = await SharedPreferences.getInstance();
+  final isDarkMode = prefs.getBool('isDarkMode') ?? false;
+
   runApp(
     MultiProvider(
       providers: [
         //theme provider
-        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(
+          create: (context) => ThemeProvider(isDarkMode: isDarkMode),
+        ),
 
         //restaurant provider
         ChangeNotifierProvider(create: (context) => Restaurant()),

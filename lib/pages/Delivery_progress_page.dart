@@ -27,6 +27,13 @@ class _DeliveryProgressPageState extends State<DeliveryProgressPage> {
 
     _receipt = context.read<Restaurant>().displayCartReciept();
     _saveOrder();
+
+    // Clear cart once receipt is generated so it's fresh for next order
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<Restaurant>().clearCart();
+      }
+    });
   }
 
   Future<void> _saveOrder() async {

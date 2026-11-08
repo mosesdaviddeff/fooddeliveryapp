@@ -3,8 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:food_app/model/cart_item.dart';
 import 'package:food_app/model/food.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Restaurant extends ChangeNotifier {
+  Restaurant() {
+    _loadDeliveryAddress();
+  }
+
+  Future<void> _loadDeliveryAddress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedAddress = prefs.getString('deliveryAddress');
+    if (savedAddress != null && savedAddress.isNotEmpty) {
+      _deliveryAddress = savedAddress;
+      notifyListeners();
+    }
+  }
 
   //list of food menu
   final List<Food> _menu = [
@@ -431,9 +444,12 @@ void clearCart() {
 }
 
 // update delivery address
-void updateDeliveryAddress(String newAddress) {
+void updateDeliveryAddress(String newAddress) async {
   _deliveryAddress =  newAddress;
   notifyListeners();
+
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('deliveryAddress', newAddress);
 }
 //HELPERS
 // generate reciept
