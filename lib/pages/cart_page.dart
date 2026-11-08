@@ -73,9 +73,33 @@ class CartPage extends StatelessWidget {
               ),
             ),
              // button to pay
-             MyButton(onTap: () =>Navigator.push(context, MaterialPageRoute(builder: (context) => const PaymentPage())),
-
-             text: "Go to Checkout"),
+             MyButton(
+               onTap: () {
+                 if (userCart.isEmpty) {
+                   ScaffoldMessenger.of(context).showSnackBar(
+                     const SnackBar(content: Text("Your cart is empty!")),
+                   );
+                   return;
+                 }
+                 if (restaurant.deliveryAddress == Restaurant.defaultAddress) {
+                   ScaffoldMessenger.of(context).showSnackBar(
+                     const SnackBar(
+                       content: Text(
+                         "Please set your delivery location on the Home page first.",
+                       ),
+                     ),
+                   );
+                   return;
+                 }
+                 Navigator.push(
+                   context,
+                   MaterialPageRoute(
+                     builder: (context) => const PaymentPage(),
+                   ),
+                 );
+               },
+               text: "Go to Checkout",
+             ),
 
              const SizedBox(height: 25,)
           ],

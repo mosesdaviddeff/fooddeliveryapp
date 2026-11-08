@@ -19,9 +19,10 @@ class FirestoreService {
   // stream of orders for currently logged in user
   Stream<QuerySnapshot<Map<String, dynamic>>> getUserOrdersStream() {
     final user = FirebaseAuth.instance.currentUser;
-    return orders
-        .where('userId', isEqualTo: user?.uid)
-        .orderBy('date', descending: true)
-        .snapshots();
+    if (user == null) {
+      return const Stream.empty();
+    }
+    // Query by userId without server-side orderBy to avoid requiring a composite index
+    return orders.where('userId', isEqualTo: user.uid).snapshots();
   }
 }

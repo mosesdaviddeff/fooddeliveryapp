@@ -31,9 +31,20 @@ class MyCurrentLocation extends StatelessWidget {
             onTap: () => _openLocationSearchBox(context),
             child: Row(
               children: [
-                Consumer<Restaurant>(
-                  builder: (context, restaurant, child) =>
-                      Text(restaurant.deliveryAddress),
+                Flexible(
+                  child: Consumer<Restaurant>(
+                    builder: (context, restaurant, child) => Text(
+                      restaurant.deliveryAddress,
+                      style: TextStyle(
+                        color: restaurant.deliveryAddress ==
+                                Restaurant.defaultAddress
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.inversePrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ),
                 const Icon(Icons.keyboard_arrow_down_rounded),
               ],
@@ -55,6 +66,15 @@ class _AddressDialog extends StatefulWidget {
 class _AddressDialogState extends State<_AddressDialog> {
   final _controller = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    final currentAddress = context.read<Restaurant>().deliveryAddress;
+    if (currentAddress != Restaurant.defaultAddress) {
+      _controller.text = currentAddress;
+    }
+  }
 
   @override
   void dispose() {

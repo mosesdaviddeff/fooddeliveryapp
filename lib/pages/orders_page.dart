@@ -34,19 +34,43 @@ class OrdersPage extends StatelessWidget {
 
           // error
           if (snapshot.hasError) {
+            final errorMsg = snapshot.error.toString();
+            final isPermission = errorMsg.contains('permission-denied');
+
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
-                child: Text(
-                  "Could not load orders: ${snapshot.error}",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: colors.error),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, size: 60, color: colors.error),
+                    const SizedBox(height: 16),
+                    Text(
+                      isPermission
+                          ? "Firestore permission denied.\nPlease make sure your Firebase Security Rules allow read access for authenticated users."
+                          : "Could not load orders:\n$errorMsg",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: colors.error, fontSize: 14),
+                    ),
+                  ],
                 ),
               ),
             );
           }
 
-          final docs = snapshot.data?.docs ?? [];
+          final docs = List<QueryDocumentSnapshot<Map<String, dynamic>>>.from(
+            snapshot.data?.docs ?? [],
+          );
+
+          // Sort in memory by date descending (avoids requiring a Firestore composite index)
+          docs.sort((a, b) {
+            final aDate = a.data()['date'] as Timestamp?;
+            final bDate = b.data()['date'] as Timestamp?;
+            if (aDate == null && bDate == null) return 0;
+            if (aDate == null) return 1;
+            if (bDate == null) return -1;
+            return bDate.compareTo(aDate);
+          });
 
           // empty state
           if (docs.isEmpty) {
@@ -93,7 +117,7 @@ class OrdersPage extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(
-                    color: colors.tertiary.withValues(alpha: 0.3),
+                    color: colors.tertiary.withOpacity(0.3),
                   ),
                 ),
                 elevation: 0,
@@ -128,7 +152,7 @@ class OrdersPage extends StatelessWidget {
                           color: colors.surface,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: colors.tertiary.withValues(alpha: 0.5),
+                            color: colors.tertiary.withOpacity(0.5),
                           ),
                         ),
                         child: Text(

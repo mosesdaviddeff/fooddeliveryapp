@@ -75,7 +75,7 @@ class _DeliveryProgressPageState extends State<DeliveryProgressPage> {
       bottomNavigationBar: _buildBottomNavBar(context),
       body: Column(
         children: [
-          const MyReciept(),
+          MyReciept(receipt: _receipt),
           if (_isSavingOrder) ...[
             const CircularProgressIndicator(),
             const SizedBox(height: 8),

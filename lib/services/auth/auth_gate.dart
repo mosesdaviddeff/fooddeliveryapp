@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:food_app/pages/home_page.dart';
+import 'package:food_app/pages/verify_email_page.dart';
 import 'package:food_app/services/auth/login_or_register.dart';
 
 class AuthGate extends StatelessWidget {
@@ -19,9 +19,9 @@ class AuthGate extends StatelessWidget {
             );
           }
 
-          // user is logged in
+          // user is logged in (VerifyEmailPage will show HomePage if already verified)
           if (snapshot.hasData) {
-            return const HomePage();
+            return const VerifyEmailPage();
           }
 
           // user is NOT logged in

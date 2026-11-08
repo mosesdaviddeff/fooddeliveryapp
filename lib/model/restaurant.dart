@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:collection/collection.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:food_app/model/cart_item.dart';
 import 'package:food_app/model/food.dart';
@@ -6,17 +8,48 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Restaurant extends ChangeNotifier {
+  static const String defaultAddress = "Set your location";
+
+  StreamSubscription<User?>? _authSubscription;
+  String? _currentUserId;
+
   Restaurant() {
-    _loadDeliveryAddress();
+    _initAuthListener();
   }
 
-  Future<void> _loadDeliveryAddress() async {
+  void _initAuthListener() {
+    _authSubscription =
+        FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user == null) {
+        // User logged out: clear cart and reset delivery address
+        _currentUserId = null;
+        _cart.clear();
+        _deliveryAddress = defaultAddress;
+        notifyListeners();
+      } else if (_currentUserId != user.uid) {
+        // New user or account switch: clear previous user's cart and load this user's location
+        _currentUserId = user.uid;
+        _cart.clear();
+        _loadDeliveryAddressForUser(user.uid);
+      }
+    });
+  }
+
+  Future<void> _loadDeliveryAddressForUser(String userId) async {
     final prefs = await SharedPreferences.getInstance();
-    final savedAddress = prefs.getString('deliveryAddress');
-    if (savedAddress != null && savedAddress.isNotEmpty) {
+    final savedAddress = prefs.getString('deliveryAddress_$userId');
+    if (savedAddress != null && savedAddress.trim().isNotEmpty) {
       _deliveryAddress = savedAddress;
-      notifyListeners();
+    } else {
+      _deliveryAddress = defaultAddress;
     }
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
   }
 
   //list of food menu
@@ -353,7 +386,7 @@ class Restaurant extends ChangeNotifier {
 final List<CartItem> _cart = [];
 
 //delivery address - user can edit
-String _deliveryAddress = "118 Meghan Ln, Madison, AL 35758";
+String _deliveryAddress = defaultAddress;
 
 // GETTERS
 
@@ -445,11 +478,15 @@ void clearCart() {
 
 // update delivery address
 void updateDeliveryAddress(String newAddress) async {
-  _deliveryAddress =  newAddress;
+  final trimmed = newAddress.trim();
+  _deliveryAddress = trimmed.isEmpty ? defaultAddress : trimmed;
   notifyListeners();
 
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('deliveryAddress', newAddress);
+  final user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('deliveryAddress_${user.uid}', _deliveryAddress);
+  }
 }
 //HELPERS
 // generate reciept

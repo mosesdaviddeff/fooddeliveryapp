@@ -62,14 +62,13 @@ flutter_native_splash:
   ios: true
 
   color: "#FFFFFF"
-  image: lib/images/icon/android12splash.png
-
-color_dark: "#1E1E1E"
-
-android12:
-  color: "#FFFFFF"
   color_dark: "#1E1E1E"
   image: lib/images/icon/android12splash.png
+
+  android_12:
+    color: "#FFFFFF"
+    color_dark: "#1E1E1E"
+    image: lib/images/icon/android12splash.png
 
 flutter_launcher_icons:
   android: true

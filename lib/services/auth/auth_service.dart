@@ -37,12 +37,33 @@ class AuthService {
         email: email, 
         password: password
         );
-        return userCredential;
+      // send standard Firebase verification email
+      await userCredential.user?.sendEmailVerification();
+      return userCredential;
     }
     // Catch any errors
     on FirebaseAuthException catch (e) {
       throw Exception(e.code);
     }
+  }
+
+  // send email verification
+  Future<void> sendEmailVerification() async {
+    try {
+      await _firebaseAuth.currentUser?.sendEmailVerification();
+    } on FirebaseAuthException catch (e) {
+      throw Exception(e.code);
+    }
+  }
+
+  // check if current user is email verified
+  bool isEmailVerified() {
+    return _firebaseAuth.currentUser?.emailVerified ?? false;
+  }
+
+  // reload user
+  Future<void> reloadUser() async {
+    await _firebaseAuth.currentUser?.reload();
   }
 
   //sign in / sign up with Google

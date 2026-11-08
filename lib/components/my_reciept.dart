@@ -3,7 +3,9 @@ import 'package:food_app/model/restaurant.dart';
 import 'package:provider/provider.dart';
 
 class MyReciept extends StatelessWidget {
-  const MyReciept({super.key});
+  final String? receipt;
+
+  const MyReciept({super.key, this.receipt});
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +25,12 @@ class MyReciept extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
               ),
               padding: const EdgeInsets.all(25),
-              child: Consumer<Restaurant>(
-                builder: (context, restaurant, child) => Text(restaurant.displayCartReciept())),
+              child: receipt != null
+                  ? Text(receipt!)
+                  : Consumer<Restaurant>(
+                      builder: (context, restaurant, child) =>
+                          Text(restaurant.displayCartReciept()),
+                    ),
               ),
 
               const SizedBox(height: 25),

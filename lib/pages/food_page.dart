@@ -153,19 +153,20 @@ class _FoodPageState extends State<FoodPage> {
         // back button
         SafeArea(
           child: Opacity(
-            opacity: 0.6,
+            opacity: 0.7,
             child: Container(
-              margin: EdgeInsets.only(left: 25),
+              margin: const EdgeInsets.only(left: 25, top: 15),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.secondary, 
                 shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_rounded),
-                onPressed: () => Navigator.pop(context)),
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_rounded),
+                onPressed: () => Navigator.pop(context),
+              ),
             ),
           ),
-        )
+        ),
       ],
     );
   }
